@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +26,9 @@ fun DashboardScreen(
 ) {
     val dashboardStats by viewModel.dashboardStats.collectAsStateWithLifecycle()
     val stockItems by viewModel.stockItems.collectAsStateWithLifecycle(initialValue = emptyList())
+    var showDeleteDialog by remember { mutableStateOf<StockItem?>(null) }
+    var showViewDialog by remember { mutableStateOf<StockItem?>(null) }
+    var showEditDialog by remember { mutableStateOf<StockItem?>(null) }
     
     LazyColumn(
         modifier = modifier
@@ -140,7 +145,7 @@ fun DashboardScreen(
                             Text(
                                 text = "Aksi",
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1.5f)
                             )
                         }
                         
@@ -151,11 +156,63 @@ fun DashboardScreen(
         }
         
         items(stockItems) { item ->
-            StockItemRow(
+            StockItemRowWithDelete(
                 stockItem = item,
-                onViewClick = { /* TODO: Show item details */ }
+                onViewClick = { showViewDialog = item },
+                onEditClick = { showEditDialog = item },
+                onDeleteClick = { showDeleteDialog = item }
             )
         }
+    }
+
+    // View Dialog
+    showViewDialog?.let { item ->
+        ViewItemDialog(
+            stockItem = item,
+            onDismiss = { showViewDialog = null }
+        )
+    }
+
+    // Edit Dialog
+    showEditDialog?.let { item ->
+        EditItemDialog(
+            stockItem = item,
+            onDismiss = { showEditDialog = null },
+            onSave = { updatedItem ->
+                viewModel.updateStockItem(updatedItem)
+                showEditDialog = null
+            },
+            onDelete = { itemToDelete ->
+                viewModel.deleteStockItem(itemToDelete)
+                showEditDialog = null
+            }
+        )
+    }
+
+    // Delete Confirmation Dialog
+    showDeleteDialog?.let { item ->
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = null },
+            title = { Text("Padam Item") },
+            text = { 
+                Text("Adakah anda pasti untuk memadam item '${item.stockDescription}'? Tindakan ini tidak boleh dibatalkan.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteStockItem(item)
+                        showDeleteDialog = null
+                    }
+                ) {
+                    Text("Padam", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = null }) {
+                    Text("Batal")
+                }
+            }
+        )
     }
 }
 
@@ -193,9 +250,11 @@ fun StatCard(
 }
 
 @Composable
-fun StockItemRow(
+fun StockItemRowWithDelete(
     stockItem: StockItem,
     onViewClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -232,13 +291,15 @@ fun StockItemRow(
                 style = MaterialTheme.typography.bodyMedium
             )
             
-            // Status
+            // Status - Fixed logic to handle edge cases
             val statusText = when {
+                stockItem.minStock <= 0 -> "Tidak Ditetapkan" // Handle cases where minStock is not set
                 stockItem.currentBalance <= stockItem.minStock -> "Stok Rendah"
                 stockItem.currentBalance <= stockItem.reorderStock -> "Perlu Reorder"
                 else -> "Normal"
             }
             val statusColor = when {
+                stockItem.minStock <= 0 -> Color.Gray
                 stockItem.currentBalance <= stockItem.minStock -> Color.Red
                 stockItem.currentBalance <= stockItem.reorderStock -> Color(0xFFFFA500)
                 else -> Color.Green
@@ -252,16 +313,324 @@ fun StockItemRow(
                 fontWeight = FontWeight.Bold
             )
             
-            IconButton(
-                onClick = onViewClick,
-                modifier = Modifier.weight(1f)
+            // Action buttons - DEBUG: Three buttons should be visible
+            Row(
+                modifier = Modifier.weight(1.5f),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Icon(
-                    Icons.Default.Visibility,
-                    contentDescription = "Lihat",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                IconButton(
+                    onClick = onViewClick,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Visibility,
+                        contentDescription = "Lihat",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                IconButton(
+                    onClick = onEditClick,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Button(
+                    onClick = onDeleteClick,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Text(
+                        text = "DEL",
+                        color = Color.White,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun ViewItemDialog(
+    stockItem: StockItem,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Butiran Item") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                DetailRow("No. Kad:", stockItem.cardNo)
+                DetailRow("Kedai:", stockItem.storeName)
+                DetailRow("Perihal:", stockItem.stockDescription)
+                DetailRow("Kod No:", stockItem.codeNo)
+                DetailRow("Unit:", stockItem.unitMeasurement)
+                DetailRow("Kumpulan:", stockItem.group)
+                DetailRow("Pergerakan:", stockItem.movement)
+                DetailRow("Gudang:", stockItem.warehouse)
+                DetailRow("Baris:", stockItem.row)
+                DetailRow("Rak:", stockItem.rack)
+                DetailRow("Aras:", stockItem.level)
+                DetailRow("Petak:", stockItem.compartment)
+                DetailRow("Stok Maksimum:", stockItem.maxStock.toString())
+                DetailRow("Stok Reorder:", stockItem.reorderStock.toString())
+                DetailRow("Stok Minimum:", stockItem.minStock.toString())
+                DetailRow("Baki Semasa:", "${stockItem.currentBalance} ${stockItem.unitMeasurement}")
+                DetailRow("Jumlah Diterima:", "${stockItem.totalReceived} ${stockItem.unitMeasurement}")
+                DetailRow("Jumlah Dikeluarkan:", "${stockItem.totalIssued} ${stockItem.unitMeasurement}")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Tutup")
+            }
+        }
+    )
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value,
+            modifier = Modifier.weight(1f),
+            textAlign = TextAlign.End
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditItemDialog(
+    stockItem: StockItem,
+    onDismiss: () -> Unit,
+    onSave: (StockItem) -> Unit,
+    onDelete: (StockItem) -> Unit = {}
+) {
+    var storeName by remember { mutableStateOf(stockItem.storeName) }
+    var stockDescription by remember { mutableStateOf(stockItem.stockDescription) }
+    var codeNo by remember { mutableStateOf(stockItem.codeNo) }
+    var unitMeasurement by remember { mutableStateOf(stockItem.unitMeasurement) }
+    var group by remember { mutableStateOf(stockItem.group) }
+    var movement by remember { mutableStateOf(stockItem.movement) }
+    var warehouse by remember { mutableStateOf(stockItem.warehouse) }
+    var row by remember { mutableStateOf(stockItem.row) }
+    var rack by remember { mutableStateOf(stockItem.rack) }
+    var level by remember { mutableStateOf(stockItem.level) }
+    var compartment by remember { mutableStateOf(stockItem.compartment) }
+    var maxStock by remember { mutableStateOf(stockItem.maxStock.toString()) }
+    var reorderStock by remember { mutableStateOf(stockItem.reorderStock.toString()) }
+    var minStock by remember { mutableStateOf(stockItem.minStock.toString()) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Item") },
+        text = {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.heightIn(max = 400.dp)
+            ) {
+                item {
+                    OutlinedTextField(
+                        value = storeName,
+                        onValueChange = { storeName = it },
+                        label = { Text("Nama Kedai") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = stockDescription,
+                        onValueChange = { stockDescription = it },
+                        label = { Text("Perihal Stok") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = codeNo,
+                        onValueChange = { codeNo = it },
+                        label = { Text("Kod No") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = unitMeasurement,
+                        onValueChange = { unitMeasurement = it },
+                        label = { Text("Unit Pengukuran") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = group,
+                        onValueChange = { group = it },
+                        label = { Text("Kumpulan") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = movement,
+                        onValueChange = { movement = it },
+                        label = { Text("Pergerakan") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    OutlinedTextField(
+                        value = warehouse,
+                        onValueChange = { warehouse = it },
+                        label = { Text("Gudang") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = row,
+                            onValueChange = { row = it },
+                            label = { Text("Baris") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = rack,
+                            onValueChange = { rack = it },
+                            label = { Text("Rak") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = level,
+                            onValueChange = { level = it },
+                            label = { Text("Aras") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = compartment,
+                            onValueChange = { compartment = it },
+                            label = { Text("Petak") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedTextField(
+                            value = maxStock,
+                            onValueChange = { maxStock = it },
+                            label = { Text("Stok Max") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = reorderStock,
+                            onValueChange = { reorderStock = it },
+                            label = { Text("Reorder") },
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = minStock,
+                            onValueChange = { minStock = it },
+                            label = { Text("Stok Min") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextButton(
+                    onClick = { showDeleteConfirmation = true },
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                ) {
+                    Text("Padam")
+                }
+                TextButton(
+                    onClick = {
+                        val updatedItem = stockItem.copy(
+                            storeName = storeName,
+                            stockDescription = stockDescription,
+                            codeNo = codeNo,
+                            unitMeasurement = unitMeasurement,
+                            group = group,
+                            movement = movement,
+                            warehouse = warehouse,
+                            row = row,
+                            rack = rack,
+                            level = level,
+                            compartment = compartment,
+                            maxStock = maxStock.toIntOrNull() ?: stockItem.maxStock,
+                            reorderStock = reorderStock.toIntOrNull() ?: stockItem.reorderStock,
+                            minStock = minStock.toIntOrNull() ?: stockItem.minStock
+                        )
+                        onSave(updatedItem)
+                    }
+                ) {
+                    Text("Simpan")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Batal")
+            }
+        }
+    )
+    
+    // Delete confirmation dialog
+    if (showDeleteConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmation = false },
+            title = { Text("Padam Item") },
+            text = { 
+                Text("Adakah anda pasti untuk memadam item '${stockItem.stockDescription}'? Tindakan ini tidak boleh dibatalkan.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete(stockItem)
+                        showDeleteConfirmation = false
+                        onDismiss()
+                    }
+                ) {
+                    Text("Padam", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmation = false }) {
+                    Text("Batal")
+                }
+            }
+        )
     }
 } 

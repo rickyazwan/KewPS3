@@ -34,12 +34,13 @@ fun AddItemScreen(
     var maxStock by remember { mutableStateOf("") }
     var reorderStock by remember { mutableStateOf("") }
     var minStock by remember { mutableStateOf("") }
+    var initialStock by remember { mutableStateOf("") }
     
     var unitExpanded by remember { mutableStateOf(false) }
     var groupExpanded by remember { mutableStateOf(false) }
     var movementExpanded by remember { mutableStateOf(false) }
     
-    val unitOptions = listOf("buah", "batang", "bilah", "kotak", "rim", "kg", "liter")
+    val unitOptions = listOf("buah", "batang", "bilah", "kotak", "rim", "kg", "liter","unit")
     val groupOptions = listOf("A", "B")
     val movementOptions = listOf("Aktif", "Tidak Aktif")
     
@@ -318,6 +319,23 @@ fun AddItemScreen(
                             modifier = Modifier.weight(1f)
                         )
                     }
+                    
+                    Column {
+                        OutlinedTextField(
+                            value = initialStock,
+                            onValueChange = { initialStock = it },
+                            label = { Text("Stok Awal") },
+                            placeholder = { Text("Kuantiti stok semasa") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            text = "Masukkan kuantiti stok semasa jika ada. Jika tidak ada, biarkan kosong (0).",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }
                 }
             }
         }
@@ -344,7 +362,8 @@ fun AddItemScreen(
                                 compartment = compartment,
                                 maxStock = maxStock.toIntOrNull() ?: 0,
                                 reorderStock = reorderStock.toIntOrNull() ?: 0,
-                                minStock = minStock.toIntOrNull() ?: 0
+                                minStock = minStock.toIntOrNull() ?: 0,
+                                initialStock = initialStock.toIntOrNull() ?: 0
                             )
                             
                             // Clear form
@@ -362,6 +381,7 @@ fun AddItemScreen(
                             maxStock = ""
                             reorderStock = ""
                             minStock = ""
+                            initialStock = ""
                         }
                     },
                     modifier = Modifier.weight(1f)
@@ -387,6 +407,7 @@ fun AddItemScreen(
                         maxStock = ""
                         reorderStock = ""
                         minStock = ""
+                        initialStock = ""
                     },
                     modifier = Modifier.weight(1f)
                 ) {

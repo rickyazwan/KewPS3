@@ -43,7 +43,8 @@ class KewPS3ViewModel(application: Application) : AndroidViewModel(application) 
         compartment: String,
         maxStock: Int,
         reorderStock: Int,
-        minStock: Int
+        minStock: Int,
+        initialStock: Int = 0
     ) {
         viewModelScope.launch {
             try {
@@ -64,7 +65,9 @@ class KewPS3ViewModel(application: Application) : AndroidViewModel(application) 
                     compartment = compartment,
                     maxStock = maxStock,
                     reorderStock = reorderStock,
-                    minStock = minStock
+                    minStock = minStock,
+                    currentBalance = initialStock,
+                    totalReceived = initialStock
                 )
                 
                 repository.insertStockItem(stockItem)
@@ -121,6 +124,74 @@ class KewPS3ViewModel(application: Application) : AndroidViewModel(application) 
     
     fun getTransactionsByStockItem(stockItemId: Long): Flow<List<Transaction>> {
         return repository.getTransactionsByStockItem(stockItemId)
+    }
+    
+    fun updateTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            try {
+                repository.updateTransaction(transaction)
+                updateDashboardStats()
+                showMessage("Transaksi berjaya dikemas kini!")
+            } catch (e: Exception) {
+                showMessage("Ralat mengemas kini transaksi: ${e.message}")
+            }
+        }
+    }
+    
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            try {
+                // Get the associated stock item and reverse the transaction effect
+                val stockItem = repository.getStockItemById(transaction.stockItemId)
+                stockItem?.let { item ->
+                    val updatedStockItem = if (transaction.type == "terimaan") {
+                        // Reverse receipt: subtract from balance and totalReceived
+                        item.copy(
+                            currentBalance = item.currentBalance - transaction.quantity,
+                            totalReceived = item.totalReceived - transaction.quantity
+                        )
+                    } else {
+                        // Reverse issue: add back to balance and subtract from totalIssued
+                        item.copy(
+                            currentBalance = item.currentBalance + transaction.quantity,
+                            totalIssued = item.totalIssued - transaction.quantity
+                        )
+                    }
+                    
+                    repository.updateStockItem(updatedStockItem)
+                }
+                
+                repository.deleteTransaction(transaction)
+                updateDashboardStats()
+                showMessage("Transaksi berjaya dipadam!")
+            } catch (e: Exception) {
+                showMessage("Ralat memadam transaksi: ${e.message}")
+            }
+        }
+    }
+    
+    fun updateStockItem(stockItem: StockItem) {
+        viewModelScope.launch {
+            try {
+                repository.updateStockItem(stockItem)
+                updateDashboardStats()
+                showMessage("Item berjaya dikemas kini!")
+            } catch (e: Exception) {
+                showMessage("Ralat mengemas kini item: ${e.message}")
+            }
+        }
+    }
+    
+    fun deleteStockItem(stockItem: StockItem) {
+        viewModelScope.launch {
+            try {
+                repository.deleteStockItem(stockItem)
+                updateDashboardStats()
+                showMessage("Item berjaya dipadam!")
+            } catch (e: Exception) {
+                showMessage("Ralat memadam item: ${e.message}")
+            }
+        }
     }
     
     private fun updateDashboardStats() {
