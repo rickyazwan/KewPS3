@@ -26,18 +26,18 @@ Aplikasi Android untuk pengurusan stok mengikut format KEW.PS-3 Pekeliling Perbe
 - Maklumat keluaran: penerima, kuantiti
 - Sejarah transaksi lengkap dengan tarikh dan pegawai
 
-### 📄 Eksport Dokumen
-- Eksport dokumen KEW.PS-3 dalam format Microsoft Word (.docx)
-- Format mengikuti borang rasmi Pekeliling Perbendaharaan Malaysia
-- Termasuk Bahagian A (Maklumat Stok) dan Bahagian B (Transaksi)
-- Boleh dikongsi melalui aplikasi lain
+### 📄 Integrasi Google Docs
+- Integrasi dengan Google Docs untuk pengurusan dokumen online
+- Akses terus ke template KEW.PS-3 di Google Docs
+- Kongsi data dalam format teks untuk ditampal ke dokumen
+- Simpan automatik ke cloud dan akses dari mana-mana peranti
 
 ## Teknologi yang Digunakan
 
 - **Kotlin** - Bahasa pengaturcaraan utama
 - **Jetpack Compose** - UI toolkit moden untuk Android
 - **Room Database** - Penyimpanan data tempatan
-- **Apache POI** - Penjanaan dokumen Microsoft Word
+- **Google Docs API** - Integrasi dengan Google Docs untuk pengurusan dokumen
 - **Material Design 3** - Reka bentuk UI yang konsisten
 
 ## Struktur Aplikasi
@@ -59,9 +59,9 @@ app/
 │   ├── DashboardScreen.kt    # Skrin dashboard
 │   ├── AddItemScreen.kt      # Skrin tambah item
 │   ├── TransactionsScreen.kt # Skrin transaksi
-│   └── ExportScreen.kt       # Skrin eksport
+│   └── ExportScreen.kt       # Skrin integrasi Google Docs
 └── utils/
-    └── DocumentExporter.kt   # Utiliti eksport dokumen
+    └── GoogleDocsIntegration.kt   # Utiliti integrasi Google Docs
 ```
 
 ## Ciri-ciri Keselamatan
@@ -94,27 +94,34 @@ app/
 5. Masukkan nama pegawai stor
 6. Tekan "Rekod Transaksi"
 
-### 3. Eksport Dokumen
-1. Pilih tab "Export"
-2. Pilih item stok untuk dieksport
-3. Tekan "Eksport Dokumen KEW.PS-3 (DOCX)"
-4. Dokumen akan dijana dan boleh dikongsi
+### 3. Integrasi Google Docs
+1. Pilih tab "Documents"
+2. Pilih item stok untuk didokumentasikan
+3. Tekan "Buka Google Docs" untuk akses template
+4. Tekan "Kongsi Data" untuk menyalin data ke Google Docs
 
-## Format Dokumen KEW.PS-3
+## Integrasi Google Docs KEW.PS-3
 
-Dokumen yang dieksport mengikuti format rasmi dengan:
+Data yang dikongsi ke Google Docs mengikuti format rasmi dengan:
 
-### Bahagian A - Maklumat Stok
-- Maklumat asas item (kod, unit, kumpulan)
-- Lokasi penyimpanan lengkap
-- Paras stok (maksimum, menokok, minimum)
-- Statistik terimaan dan keluaran suku tahunan
+### Maklumat Stok
+- Maklumat asas item (No. Kad, nama stor, perihal stok)
+- No. kod dan unit pengukuran
+- Kumpulan dan status pergerakan
+- Lokasi penyimpanan lengkap (gudang, baris, rak, tingkat, petak)
+- Paras stok (maksimum, reorder, minimum)
 
-### Bahagian B - Transaksi Stok
-- Jadual transaksi dengan tarikh dan dokumen
-- Maklumat terimaan (kuantiti, harga seunit, jumlah)
-- Maklumat keluaran (kuantiti, jumlah)
-- Baki semasa dan nama pegawai
+### Transaksi Stok
+- Jadual transaksi dengan tarikh dan jenis dokumen
+- Maklumat terimaan dan keluaran
+- Kuantiti, harga seunit, dan jumlah harga
+- Nama pegawai yang mengendalikan
+
+### Kelebihan Google Docs
+- Simpan automatik ke cloud
+- Akses dari mana-mana peranti
+- Kolaborasi masa nyata
+- Boleh dieksport ke PDF atau Word jika diperlukan
 
 ## Nota Penting
 

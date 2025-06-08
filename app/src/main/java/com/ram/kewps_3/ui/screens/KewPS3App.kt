@@ -5,8 +5,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ram.kewps_3.viewmodel.KewPS3ViewModel
@@ -31,14 +33,19 @@ fun KewPS3App(
         // Header
         CenterAlignedTopAppBar(
             title = {
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
                     Text(
                         text = "KEW.PS-3 Sistem Pengurusan Stok",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center
                     )
                     Text(
                         text = "Pekeliling Perbendaharaan Malaysia AM 6.3",
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center
                     )
                 }
             },
@@ -87,5 +94,5 @@ enum class BottomNavItem(val title: String, val icon: ImageVector) {
     DASHBOARD("Dashboard", Icons.Default.Dashboard),
     ADD_ITEM("Add Item", Icons.Default.Add),
     TRANSACTIONS("Transactions", Icons.Default.Receipt),
-    EXPORT("Export", Icons.Default.FileDownload)
+    EXPORT("Documents", Icons.Default.Share)
 } 

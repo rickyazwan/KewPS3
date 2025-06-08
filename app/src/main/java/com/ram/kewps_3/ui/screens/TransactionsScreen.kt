@@ -3,6 +3,7 @@ package com.ram.kewps_3.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -75,11 +76,25 @@ fun TransactionsScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(
-                text = "Transaksi Stok (Bahagian B)",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    text = "💼 Transaksi Stok (Bahagian B)",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                )
+            }
         }
         
         item {
@@ -91,60 +106,171 @@ fun TransactionsScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Rekod Transaksi Baru",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    Row(
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        OutlinedTextField(
-                            value = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(selectedDate)),
-                            onValueChange = { },
-                            label = { Text("Tarikh") },
-                            readOnly = true,
-                            modifier = Modifier.weight(1f)
+                        Text(
+                            text = "📝 Rekod Transaksi Baru",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
                         )
-                        
-                        ExposedDropdownMenuBox(
-                            expanded = documentTypeExpanded,
-                            onExpandedChange = { documentTypeExpanded = !documentTypeExpanded },
-                            modifier = Modifier.weight(1f)
+                    }
+                    
+                    // Enhanced Document Information Section
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            OutlinedTextField(
-                                value = documentTypes.find { it.first == documentType }?.second ?: "",
-                                onValueChange = { },
-                                readOnly = true,
-                                label = { Text("Jenis Dokumen") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = documentTypeExpanded) },
-                                modifier = Modifier.menuAnchor()
+                            Text(
+                                text = "📄 Maklumat Dokumen",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
-                            ExposedDropdownMenu(
-                                expanded = documentTypeExpanded,
-                                onDismissRequest = { documentTypeExpanded = false }
+                            
+                            // Date Field - Full width for better visibility
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)
+                                ),
+                                shape = RoundedCornerShape(8.dp)
                             ) {
-                                documentTypes.forEach { (code, description) ->
-                                    DropdownMenuItem(
-                                        text = { Text(description) },
-                                        onClick = {
-                                            documentType = code
-                                            documentTypeExpanded = false
+                                OutlinedTextField(
+                                    value = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(Date(selectedDate)),
+                                    onValueChange = { },
+                                    label = { 
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Text("📅")
+                                            Text("Tarikh Transaksi")
                                         }
+                                    },
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
                                     )
+                                )
+                            }
+                            
+                            // Document Type Field - Enhanced dropdown
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                ExposedDropdownMenuBox(
+                                    expanded = documentTypeExpanded,
+                                    onExpandedChange = { documentTypeExpanded = !documentTypeExpanded },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp)
+                                ) {
+                                    OutlinedTextField(
+                                        value = documentTypes.find { it.first == documentType }?.second ?: "",
+                                        onValueChange = { },
+                                        readOnly = true,
+                                        label = { 
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                            ) {
+                                                Text("📋")
+                                                Text("Jenis Dokumen")
+                                            }
+                                        },
+                                        placeholder = { Text("Pilih jenis dokumen...") },
+                                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = documentTypeExpanded) },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .menuAnchor(),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+                                        )
+                                    )
+                                    ExposedDropdownMenu(
+                                        expanded = documentTypeExpanded,
+                                        onDismissRequest = { documentTypeExpanded = false }
+                                    ) {
+                                        documentTypes.forEach { (code, description) ->
+                                            DropdownMenuItem(
+                                                text = { 
+                                                    Text(
+                                                        text = description,
+                                                        style = MaterialTheme.typography.bodyMedium
+                                                    )
+                                                },
+                                                onClick = {
+                                                    documentType = code
+                                                    documentTypeExpanded = false
+                                                }
+                                            )
+                                        }
+                                    }
                                 }
                             }
+                            
+                            // Document Number Field - Enhanced input
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.2f)
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                OutlinedTextField(
+                                    value = documentNo,
+                                    onValueChange = { documentNo = it },
+                                    label = { 
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Text("🔢")
+                                            Text("Nombor Dokumen")
+                                        }
+                                    },
+                                    placeholder = { Text("Masukkan nombor dokumen...") },
+                                    supportingText = { Text("Contoh: 001/2024, INV-2024-001") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+                                    )
+                                )
+                            }
                         }
-                        
-                        OutlinedTextField(
-                            value = documentNo,
-                            onValueChange = { documentNo = it },
-                            label = { Text("No. Dokumen") },
-                            placeholder = { Text("No. dokumen") },
-                            modifier = Modifier.weight(1f)
-                        )
                     }
                     
                     Row(
@@ -216,9 +342,11 @@ fun TransactionsScreen(
                     
                     if (transactionType == "terimaan") {
                         Text(
-                            text = "Maklumat Terimaan",
+                            text = "📥 Maklumat Terimaan",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                         
                         Row(
@@ -251,9 +379,11 @@ fun TransactionsScreen(
                         }
                     } else if (transactionType == "keluaran") {
                         Text(
-                            text = "Maklumat Keluaran",
+                            text = "📤 Maklumat Keluaran",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                         
                         Row(

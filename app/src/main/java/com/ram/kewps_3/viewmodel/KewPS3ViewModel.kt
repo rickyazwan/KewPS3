@@ -50,6 +50,11 @@ class KewPS3ViewModel(application: Application) : AndroidViewModel(application) 
             try {
                 val nextCardNumber = (repository.getLastCardNumber() + 1).toString().padStart(3, '0')
                 
+                // Auto-generate intelligent default values if not provided
+                val intelligentMaxStock = if (maxStock <= 0) generateIntelligentMaxStock(unitMeasurement, group) else maxStock
+                val intelligentReorderStock = if (reorderStock <= 0) (intelligentMaxStock * 0.3).toInt().coerceAtLeast(10) else reorderStock
+                val intelligentMinStock = if (minStock <= 0) (intelligentReorderStock * 0.5).toInt().coerceAtLeast(5) else minStock
+                
                 val stockItem = StockItem(
                     cardNo = nextCardNumber,
                     storeName = storeName,
@@ -63,18 +68,51 @@ class KewPS3ViewModel(application: Application) : AndroidViewModel(application) 
                     rack = rack,
                     level = level,
                     compartment = compartment,
-                    maxStock = maxStock,
-                    reorderStock = reorderStock,
-                    minStock = minStock,
+                    maxStock = intelligentMaxStock,
+                    reorderStock = intelligentReorderStock,
+                    minStock = intelligentMinStock,
                     currentBalance = initialStock,
                     totalReceived = initialStock
                 )
                 
                 repository.insertStockItem(stockItem)
                 updateDashboardStats()
-                showMessage("Item berjaya ditambah!")
+                showMessage("Item berjaya ditambah! Nilai stok auto-ditetapkan secara bijak.")
             } catch (e: Exception) {
                 showMessage("Ralat menambah item: ${e.message}")
+            }
+        }
+    }
+    
+    /**
+     * Generate intelligent maximum stock based on unit measurement and group
+     */
+    private fun generateIntelligentMaxStock(unitMeasurement: String, group: String): Int {
+        return when (unitMeasurement.lowercase()) {
+            "buah", "unit" -> when (group) {
+                "A" -> 500 // High usage items
+                "B" -> 200 // Medium usage items
+                else -> 100
+            }
+            "kotak", "rim" -> when (group) {
+                "A" -> 100
+                "B" -> 50
+                else -> 25
+            }
+            "kg", "liter" -> when (group) {
+                "A" -> 1000
+                "B" -> 500
+                else -> 200
+            }
+            "batang", "bilah" -> when (group) {
+                "A" -> 200
+                "B" -> 100
+                else -> 50
+            }
+            else -> when (group) {
+                "A" -> 300
+                "B" -> 150
+                else -> 75
             }
         }
     }

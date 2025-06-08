@@ -2,15 +2,18 @@ package com.ram.kewps_3.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.ram.kewps_3.viewmodel.KewPS3ViewModel
 
@@ -51,11 +54,25 @@ fun AddItemScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(
-                text = "Tambah Item Stok Baru (Bahagian A)",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    text = "➕ Tambah Item Stok Baru (Bahagian A)",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                )
+            }
         }
         
         item {
@@ -284,11 +301,34 @@ fun AddItemScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Paras Stok",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Paras Stok",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        
+                        // Auto-suggest button
+                        if (unitMeasurement.isNotBlank() && group.isNotBlank()) {
+                            TextButton(
+                                onClick = {
+                                    val suggestedMax = generateIntelligentMaxStock(unitMeasurement, group)
+                                    val suggestedReorder = (suggestedMax * 0.3).toInt().coerceAtLeast(10)
+                                    val suggestedMin = (suggestedReorder * 0.5).toInt().coerceAtLeast(5)
+                                    
+                                    maxStock = suggestedMax.toString()
+                                    reorderStock = suggestedReorder.toString()
+                                    minStock = suggestedMin.toString()
+                                }
+                            ) {
+                                Text("🎯 Auto-Saran", style = MaterialTheme.typography.labelLarge)
+                            }
+                        }
+                    }
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -320,6 +360,37 @@ fun AddItemScreen(
                         )
                     }
                     
+                    // Intelligent suggestion card
+                    if (unitMeasurement.isNotBlank() && group.isNotBlank()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Text(
+                                    text = "💡 Saran Bijak Untuk Unit: $unitMeasurement, Kumpulan: $group",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                val suggestedMax = generateIntelligentMaxStock(unitMeasurement, group)
+                                val suggestedReorder = (suggestedMax * 0.3).toInt().coerceAtLeast(10)
+                                val suggestedMin = (suggestedReorder * 0.5).toInt().coerceAtLeast(5)
+                                
+                                Text(
+                                    text = "Maksimum: $suggestedMax • Reorder: $suggestedReorder • Minimum: $suggestedMin",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                    
                     Column {
                         OutlinedTextField(
                             value = initialStock,
@@ -330,7 +401,7 @@ fun AddItemScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                         Text(
-                            text = "Masukkan kuantiti stok semasa jika ada. Jika tidak ada, biarkan kosong (0).",
+                            text = "Masukkan kuantiti stok semasa jika ada. Jika tidak ada, biarkan kosong (0). Sistem akan auto-ditetapkan nilai bijak jika paras stok kosong.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
@@ -438,4 +509,37 @@ private fun validateForm(
             maxStock.toIntOrNull() != null &&
             reorderStock.toIntOrNull() != null &&
             minStock.toIntOrNull() != null
-} 
+}
+
+/**
+ * Generate intelligent maximum stock based on unit measurement and group
+ */
+private fun generateIntelligentMaxStock(unitMeasurement: String, group: String): Int {
+    return when (unitMeasurement.lowercase()) {
+        "buah", "unit" -> when (group) {
+            "A" -> 500 // High usage items
+            "B" -> 200 // Medium usage items
+            else -> 100
+        }
+        "kotak", "rim" -> when (group) {
+            "A" -> 100
+            "B" -> 50
+            else -> 25
+        }
+        "kg", "liter" -> when (group) {
+            "A" -> 1000
+            "B" -> 500
+            else -> 200
+        }
+        "batang", "bilah" -> when (group) {
+            "A" -> 200
+            "B" -> 100
+            else -> 50
+        }
+        else -> when (group) {
+            "A" -> 300
+            "B" -> 150
+            else -> 75
+        }
+    }
+}

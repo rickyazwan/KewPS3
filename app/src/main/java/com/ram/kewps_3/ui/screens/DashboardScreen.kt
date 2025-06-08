@@ -3,6 +3,7 @@ package com.ram.kewps_3.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ram.kewps_3.data.StockItem
 import com.ram.kewps_3.viewmodel.KewPS3ViewModel
@@ -37,11 +39,25 @@ fun DashboardScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
-            Text(
-                text = "Dashboard Stok",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    text = "📊 Dashboard Stok",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                )
+            }
         }
         
         item {
@@ -84,16 +100,37 @@ fun DashboardScreen(
         item {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "Senarai Item Stok",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            text = "📋 Senarai Item Stok",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     if (stockItems.isEmpty()) {
@@ -110,43 +147,67 @@ fun DashboardScreen(
                             )
                         }
                     } else {
-                        // Header row
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        // Header row - Improved responsive design
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            ),
+                            shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(
-                                text = "No. Kad",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "Perihal Stok",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(2f)
-                            )
-                            Text(
-                                text = "Kumpulan",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "Baki",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "Status",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "Aksi",
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.weight(1.5f)
-                            )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "No.\nKad",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(0.8f),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 12.sp
+                                )
+                                Text(
+                                    text = "Perihal Stok",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(2.2f),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    text = "Kump.",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(0.6f),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    text = "Baki\nStok",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(0.8f),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 12.sp
+                                )
+                                Text(
+                                    text = "Status",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(1.2f),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    text = "Aksi",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.weight(1.4f),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                         
                         HorizontalDivider()
@@ -267,88 +328,86 @@ fun StockItemRowWithDelete(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stockItem.cardNo,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.weight(0.8f),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center
             )
             Text(
                 text = stockItem.stockDescription,
-                modifier = Modifier.weight(2f),
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.weight(2.2f),
+                style = MaterialTheme.typography.bodySmall,
+                maxLines = 2,
+                lineHeight = 14.sp
             )
             Text(
                 text = stockItem.group,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyMedium
+                modifier = Modifier.weight(0.6f),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center
             )
             Text(
-                text = "${stockItem.currentBalance} ${stockItem.unitMeasurement}",
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyMedium
+                text = "${stockItem.currentBalance}\n${stockItem.unitMeasurement}",
+                modifier = Modifier.weight(0.8f),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center,
+                lineHeight = 12.sp
             )
             
-            // Status - Fixed logic to handle edge cases
-            val statusText = when {
-                stockItem.minStock <= 0 -> "Tidak Ditetapkan" // Handle cases where minStock is not set
-                stockItem.currentBalance <= stockItem.minStock -> "Stok Rendah"
-                stockItem.currentBalance <= stockItem.reorderStock -> "Perlu Reorder"
-                else -> "Normal"
-            }
-            val statusColor = when {
-                stockItem.minStock <= 0 -> Color.Gray
-                stockItem.currentBalance <= stockItem.minStock -> Color.Red
-                stockItem.currentBalance <= stockItem.reorderStock -> Color(0xFFFFA500)
-                else -> Color.Green
-            }
+            // Status - Intelligent auto-generated status
+            val (statusText, statusColor) = getIntelligentStatus(stockItem)
             
             Text(
                 text = statusText,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1.2f),
+                style = MaterialTheme.typography.labelSmall,
                 color = statusColor,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                lineHeight = 11.sp
             )
             
-            // Action buttons - DEBUG: Three buttons should be visible
+            // Action buttons - Improved compact design
             Row(
-                modifier = Modifier.weight(1.5f),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier.weight(1.4f),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 IconButton(
                     onClick = onViewClick,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
                         Icons.Default.Visibility,
                         contentDescription = "Lihat",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
                 IconButton(
                     onClick = onEditClick,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
                     Icon(
                         Icons.Default.Edit,
                         contentDescription = "Edit",
                         tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
-                Button(
+                IconButton(
                     onClick = onDeleteClick,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
-                    modifier = Modifier.height(36.dp)
+                    modifier = Modifier.size(28.dp)
                 ) {
-                    Text(
-                        text = "DEL",
-                        color = Color.White,
-                        style = MaterialTheme.typography.labelSmall
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Padam",
+                        tint = Color.Red,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -633,4 +692,66 @@ fun EditItemDialog(
             }
         )
     }
-} 
+}
+
+/**
+ * Intelligent status determination function
+ * Auto-generates meaningful status based on stock levels and movement patterns
+ */
+@Composable
+private fun getIntelligentStatus(stockItem: StockItem): Pair<String, Color> {
+    return when {
+        // Critical cases - Zero or negative stock
+        stockItem.currentBalance <= 0 -> {
+            if (stockItem.totalReceived == 0 && stockItem.totalIssued == 0) {
+                "📦 Item Baru" to Color(0xFF2563EB) // Blue for new items
+            } else {
+                "🚨 Habis Stok" to Color(0xFFDC2626) // Red for out of stock
+            }
+        }
+        
+        // Handle cases where thresholds are not properly set
+        stockItem.minStock <= 0 && stockItem.reorderStock <= 0 -> {
+            when {
+                stockItem.currentBalance >= 100 -> "✅ Stok Mencukupi" to Color(0xFF16A34A) // Green
+                stockItem.currentBalance >= 50 -> "⚠️ Stok Sederhana" to Color(0xFFF59E0B) // Orange
+                stockItem.currentBalance >= 20 -> "📋 Perlu Pantauan" to Color(0xFF3B82F6) // Blue
+                else -> "🔍 Perlu Audit" to Color(0xFF8B5CF6) // Purple
+            }
+        }
+        
+        // Normal cases with proper thresholds
+        stockItem.currentBalance <= stockItem.minStock -> {
+            "🚨 Stok Rendah" to Color(0xFFDC2626) // Red
+        }
+        
+        stockItem.currentBalance <= stockItem.reorderStock -> {
+            val percentage = (stockItem.currentBalance.toFloat() / stockItem.reorderStock) * 100
+            when {
+                percentage <= 25 -> "⚠️ Kritikal" to Color(0xFFEA580C) // Orange-red
+                percentage <= 50 -> "📋 Perlu Reorder" to Color(0xFFF59E0B) // Orange
+                else -> "⏰ Hampir Reorder" to Color(0xFF3B82F6) // Blue
+            }
+        }
+        
+        // Healthy stock levels
+        stockItem.currentBalance >= stockItem.maxStock -> {
+            "📈 Stok Berlebihan" to Color(0xFF8B5CF6) // Purple
+        }
+        
+        // Excellent stock level
+        stockItem.currentBalance >= (stockItem.maxStock * 0.8).toInt() -> {
+            "✅ Stok Optimal" to Color(0xFF16A34A) // Green
+        }
+        
+        // Good stock level
+        stockItem.currentBalance >= (stockItem.reorderStock * 1.5).toInt() -> {
+            "✅ Stok Baik" to Color(0xFF059669) // Dark green
+        }
+        
+        // Default case
+        else -> {
+            "✅ Normal" to Color(0xFF16A34A) // Green
+        }
+    }
+}
